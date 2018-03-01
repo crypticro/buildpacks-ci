@@ -46,7 +46,7 @@ describe BuildpackReleaseStoryCreator do
       subject.run!
 
       expect(buildpack_project).to have_received(:stories)
-                                       .with({with_label: 'elixir', after_story_id: 1})
+                                       .with({filter: "label:elixir OR label:all", after_story_id: 1})
     end
   end
 
@@ -59,7 +59,7 @@ describe BuildpackReleaseStoryCreator do
       subject.run!
 
       expect(buildpack_project).to have_received(:stories)
-                                       .with({with_label: 'elixir'})
+                                       .with({filter: "label:elixir OR label:all", after_story_id: nil})
     end
   end
 
