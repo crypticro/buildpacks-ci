@@ -35,8 +35,9 @@ class BuildpackReleaseStoryCreator
   end
 
   def stories_since_last_release
-      buildpack_project.stories(filter: "label:#{buildpack_name} OR label:all",
-                                after_story_id: most_recent_release_story_id)
+    story_id = most_recent_release_story_id
+    buildpack_project.stories(with_label: buildpack_name, after_story_id: story_id) +
+      buildpack_project.stories(with_label: 'all', after_story_id: story_id)
   end
 
   def most_recent_release_story_id
