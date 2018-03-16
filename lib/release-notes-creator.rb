@@ -27,7 +27,7 @@ class ReleaseNotesCreator
     text = "Notably, this release addresses:\n\n" unless unreleased_usns.count == 0
 
     unreleased_usns.each do |usn|
-      text += UsnReleaseNotes.new(usn).text + "\n\n"
+      text += UsnReleaseNotes.new(*usn).text + "\n\n"
     end
     text
   end
@@ -36,7 +36,7 @@ class ReleaseNotesCreator
     cves.select do |cve|
       cve['stack_release'] == 'unreleased'
     end.map do |cve|
-      cve['title'].split(':').first
+      [ cve['title'].split(':').first, cve['link'] ]
     end
   end
 
