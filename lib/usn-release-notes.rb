@@ -26,6 +26,8 @@ class UsnReleaseNotes
   def release_note_text
     cves      = @doc.css('#references a[href*="cve/CVE"]')
 
+    raise 'Could not find CVE references for release notes' if cves.empty?
+
     notes = "[#{usn_id}](#{usn_url}) #{usn_title}:\n"
 
     cves.each do |cve|
