@@ -6,9 +6,8 @@ class UsnReleaseNotes
 
   attr_reader :usn_id, :usn_title
 
-  def initialize(usn_id, usn_url)
+  def initialize(usn_id)
     @usn_id    = usn_id.upcase
-    @usn_url   = usn_url
     @contents  = open(usn_url).read
     @doc       = Nokogiri::HTML(@contents)
     @usn_title = @doc.css('#main-content > div > h2').first.text
@@ -20,14 +19,14 @@ class UsnReleaseNotes
 
   private
 
-  # def usn_url
-  #   "https://usn.ubuntu.com/#{@usn_id}/"
-  # end
+  def usn_url
+    "https://usn.ubuntu.com/#{@usn_id}/"
+  end
 
   def release_note_text
     cves      = @doc.css('#main-content > div > h3:contains("References") + p > a[href*="cve/CVE"]')
 
-    notes = "[#{usn_id}](#{@usn_url}) #{usn_title}:\n"
+    notes = "[#{usn_id}](#{usn_url}) #{usn_title}:\n"
 
     cves.each do |cve|
       cve_id  = cve.text
