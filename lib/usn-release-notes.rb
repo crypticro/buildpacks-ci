@@ -24,7 +24,7 @@ class UsnReleaseNotes
   end
 
   def release_note_text
-    cves      = @doc.css('#main-content > div > h3:contains("References") + p > a[href*="cve/CVE"]')
+    cves      = @doc.css('#references a[href*="cve/CVE"]')
 
     notes = "[#{usn_id}](#{usn_url}) #{usn_title}:\n"
 
