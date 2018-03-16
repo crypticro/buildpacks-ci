@@ -24,7 +24,7 @@ class UsnReleaseNotes
   end
 
   def release_note_text
-    cves      = @doc.css('#references a[href*="cve/CVE"]')
+    cves      = @doc.css('#references + ul > li > a[href*="cve/CVE"]')
 
     raise 'Could not find CVE references for release notes' if cves.empty?
 
