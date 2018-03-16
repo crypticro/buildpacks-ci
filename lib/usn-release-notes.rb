@@ -10,7 +10,7 @@ class UsnReleaseNotes
     @usn_id    = usn_id.upcase
     @contents  = open(usn_url).read
     @doc       = Nokogiri::HTML(@contents)
-    @usn_title = @doc.css('#main-content > div > h2').first.text
+    @usn_title = @doc.css('#main-content > div > h1').first.text
   end
 
   def text
