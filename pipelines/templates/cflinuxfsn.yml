@@ -1,4 +1,4 @@
----
+--- # rootfs_name (cflinuxfs3)   cve_notification_file (ubuntu18.04.yml)
 resource_types:
   - name: slack-notification
     type: docker-image
@@ -53,10 +53,10 @@ resources: #####################################################################
       uri: {{buildpacks-ci-git-uri-public}}
       branch: {{buildpacks-ci-git-uri-public-branch}}
 
-  - name: cflinuxfs2
+  - name: <?= rootfs_name ?>
     type: git
     source:
-      uri: git@github.com:cloudfoundry/cflinuxfs2.git
+      uri: git@github.com:cloudfoundry/<%= rootfs_name %>.git
       branch: master
       private_key: {{stacks-private-key}}
 
@@ -65,7 +65,7 @@ resources: #####################################################################
     source:
       uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
       branch: master
-      paths: [ new-cve-notifications/ubuntu14.04.yml ]
+      paths: [ new-cve-notifications/<%= cve_notification_file ?> ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
   - name: receipt-diff
@@ -73,9 +73,9 @@ resources: #####################################################################
     source:
       uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
       branch: master
-      paths: [ receipt-diffs/cflinuxfs2-diff ]
+      paths: [ receipt-diffs/<%= rootfs_name %>-diff ]
       private_key: {{public-buildpacks-ci-robots-private-key}}
-      tag_filter: "newpackages_cflinuxfs2_*"
+      tag_filter: "newpackages_<%= rootfs_name %>_*"
 
   - name: public-robots
     type: git
@@ -84,12 +84,12 @@ resources: #####################################################################
       branch: master
       private_key: {{public-buildpacks-ci-robots-private-key}}
 
-  - name: cflinuxfs2-release
+  - name: <%= rootfs_name %>-release
     type: git
     source:
-      uri: git@github.com:cloudfoundry/cflinuxfs2-release.git
+      uri: git@github.com:cloudfoundry/<%= rootfs_name %>-release.git
       branch: master
-      private_key: {{cflinuxfs2-release-private-key}}
+      private_key: {{<%= rootfs_name %>-release-private-key}}
 
   - name: cf-release-rc
     type: git
@@ -110,7 +110,7 @@ resources: #####################################################################
     type: s3
     source:
       bucket: {{buildpacks-binaries-s3-bucket}}
-      regexp: rootfs/cflinuxfs2-(.*).tar.gz
+      regexp: rootfs/<%= rootfs_name %>-(.*).tar.gz
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
 
@@ -118,24 +118,24 @@ resources: #####################################################################
     type: s3
     source:
       bucket: {{buildpacks-binaries-s3-bucket}}
-      regexp: rootfs/cflinuxfs2_receipt-(.*)
+      regexp: rootfs/<%= rootfs_name %>_receipt-(.*)
       access_key_id: {{pivotal-buildpacks-s3-access-key}}
       secret_access_key: {{pivotal-buildpacks-s3-secret-key}}
 
   ## BOSH Deployments ##
 
-  - name: cflinuxfs2-cf-deployment
+  - name: <%= rootfs_name %>-cf-deployment
     type: bosh-deployment
     source:
       deployment: cf
       vars_store:
         provider: gcs
         config:
-          bucket: cflinuxfs2-cf-deployment
+          bucket: <%= rootfs_name %>-cf-deployment
           file_name: vars-store.yml
-          json_key: {{cflinuxfs2-cf-deployment-gcs-service-account-key}}
+          json_key: {{<%= rootfs_name %>-cf-deployment-gcs-service-account-key}}
 
-  - name: cflinuxfs2-rootfs-smoke-test-deployment
+  - name: <%= rootfs_name %>-rootfs-smoke-test-deployment
     type: bosh-deployment
     source:
       deployment: rootfs-smoke-test
@@ -149,20 +149,21 @@ resources: #####################################################################
 
   ## Docker Image ##
 
-  - name: docker-cflinuxfs2
+  - name: docker-<%= rootfs_name %>
     type: docker-image
     source:
-      repository: cloudfoundry/cflinuxfs2
-      username: {{dockerhub-cflinuxfs2-username}}
-      password: {{dockerhub-cflinuxfs2-password}}
+      repository: cloudfoundry/<%= rootfs_name %>
+      username: {{dockerhub-<%= rootfs_name %>-username}}
+      password: {{dockerhub-<%= rootfs_name %>-password}}
       email: cf-buildpacks-eng@pivotal.io
 
-  - name: docker-cflinuxfs2-tagged
+      ###FIXME: looks identical to the non tagged one?
+  - name: docker-<%= rootfs_name %>-tagged
     type: docker-image
     source:
-      repository: cloudfoundry/cflinuxfs2
-      username: {{dockerhub-cflinuxfs2-username}}
-      password: {{dockerhub-cflinuxfs2-password}}
+      repository: cloudfoundry/<%= rootfs_name %>
+      username: {{dockerhub-<%= rootfs_name %>-username}}
+      password: {{dockerhub-<%= rootfs_name %>-password}}
       email: cf-buildpacks-eng@pivotal.io
 
   ## Github Release ##
@@ -338,6 +339,7 @@ jobs: ##########################################################################
           - get: cflinuxfs2-release
           - get: buildpacks-ci
           - get: bbl-state
+          - get: bosh-lite
           - get: cf-deployment
           - get: gcp-stemcell
         - aggregate:
