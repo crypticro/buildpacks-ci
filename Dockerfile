@@ -64,6 +64,7 @@ RUN wget -O cf-cli.tgz 'https://packages.cloudfoundry.org/stable?release=linux64
   && cf install-plugin -r CF-Community "log-cache" -f
 
 # download the bosh2 CLI
+# TODO update this to be bbl v6 compatible
 RUN curl https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-2.0.45-linux-amd64 -o /usr/local/bin/bosh2 \
   && [ bf04be72daa7da0c9bbeda16fda7fc7b2b8af51e = $(shasum -a 1 /usr/local/bin/bosh2 | cut -d' ' -f1) ] \
   && chmod +x /usr/local/bin/bosh2 \

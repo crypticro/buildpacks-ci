@@ -158,21 +158,17 @@ jobs: ##########################################################################
             file: buildpacks-ci/tasks/upload-bosh-release/task.yml
             input_mapping:
               bosh-release: cflinuxfs3-bosh-release
-              env-repo: bbl-state
             params:
-              BOSH_ENV: brink-dev
+              BBL_STATE_DIR: brink-dev
               RELEASE: "*.tgz"
-
         - task: turn-on-bosh-dns
           file: buildpacks-ci/tasks/turn-on-bosh-dns/task.yml
           params:
             BBL_STATE_DIR: brink-dev
-
         - task: clean-up-env-buildpacks
           file: buildpacks-ci/tasks/clean-up-env-buildpacks/task.yml
           params:
             ENV_NAME: brink-dev
-
         - task: bosh-deploy
           file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
           attempts: 3
@@ -180,6 +176,7 @@ jobs: ##########################################################################
             vars-store: bbl-state
             vars-files: bbl-state # not actually used
             ops-files: buildpacks-ci
+
           params:
             BBL_STATE_DIR: brink-dev
             SYSTEM_DOMAIN: brink-dev.buildpacks-gcp.ci.cf-app.com
