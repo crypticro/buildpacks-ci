@@ -44,10 +44,6 @@ resources: #####################################################################
       uri: git@github.com:cloudfoundry/buildpacks-envs
       branch: master
       private_key: {{buildpacks-envs-private-key}}
-  - name: bosh-deployment
-    type: git
-    source:
-      uri: https://github.com/cloudfoundry/bosh-deployment.git
       branch: master
   - name: cf-deployment
     type: git
@@ -59,7 +55,7 @@ resources: #####################################################################
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
-      branch: {{buildpacks-ci-git-uri-public-branch}}
+      branch: wip-bbl-6
 
   - name: cflinuxfs3-bosh-release
     type: github-release
@@ -102,14 +98,10 @@ jobs: ##########################################################################
         - get: buildpacks-ci
         - get: cf-deployment-concourse-tasks
         - get: bbl-state
-        - get: bbl-config
-          resource: bosh-deployment
       - task: bbl-up
         file: cf-deployment-concourse-tasks/bbl-up/task.yml
         params:
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
-          BBL_GCP_PROJECT_ID: cf-buildpacks
-          BBL_GCP_ZONE: us-east1-c
           BBL_GCP_REGION: us-east1
           BBL_IAAS: gcp
           BBL_LB_CERT: {{brink_load_balancer_certificate}}
@@ -117,9 +109,8 @@ jobs: ##########################################################################
           LB_DOMAIN: brink-dev.buildpacks-gcp.ci.cf-app.com
           BBL_ENV_NAME: brink-dev
           BBL_STATE_DIR: brink-dev
-          OPS_FILES: "local-dns.yml"
         input_mapping:
-          ops-files: bosh-deployment
+          bbl-config: bbl-state
         ensure:
           put: bbl-state
           params:
@@ -145,38 +136,43 @@ jobs: ##########################################################################
           - get: gcp-stemcell
           - get: gcp-windows2012R2-stemcell
           - get: gcp-windows2016-stemcell
-          - get: bosh-deployment
+          - get: cf-deployment-concourse-tasks
           - get: cflinuxfs3-bosh-release
+
         - aggregate:
           - task: bosh-upload-windows2012R2-stemcell
-            file: cf-deployment-concourse-tasks/bosh-upload-stemcell/task.yml
+            file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
             params:
               BBL_STATE_DIR: brink-dev
-              MANIFEST_FILE: ../env-repo/manifests/manifest-windows2012R2.yml
+              MANIFEST_FILE: ../bbl-state/manifests/manifest-windows2012R2.yml
           - task: bosh-upload-windows2016-stemcell
-            file: cf-deployment-concourse-tasks/bosh-upload-stemcell/task.yml
+            file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
             params:
               BBL_STATE_DIR: brink-dev
-              MANIFEST_FILE: ../env-repo/manifests/manifest-windows2016.yml
+              MANIFEST_FILE: ../bbl-state/manifests/manifest-windows2016.yml
           - task: bosh-upload-stemcells
-            file: cf-deployment-concourse-tasks/bosh-upload-stemcell/task.yml
+            file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
             params:
               BBL_STATE_DIR: brink-dev
           - task: upload-bosh-release
             file: buildpacks-ci/tasks/upload-bosh-release/task.yml
             input_mapping:
               bosh-release: cflinuxfs3-bosh-release
+              env-repo: bbl-state
             params:
               BOSH_ENV: brink-dev
               RELEASE: "*.tgz"
+
         - task: turn-on-bosh-dns
           file: buildpacks-ci/tasks/turn-on-bosh-dns/task.yml
           params:
             BBL_STATE_DIR: brink-dev
+
         - task: clean-up-env-buildpacks
           file: buildpacks-ci/tasks/clean-up-env-buildpacks/task.yml
           params:
             ENV_NAME: brink-dev
+
         - task: bosh-deploy
           file: cf-deployment-concourse-tasks/bosh-deploy/task.yml
           attempts: 3
@@ -186,11 +182,9 @@ jobs: ##########################################################################
             ops-files: buildpacks-ci
           params:
             BBL_STATE_DIR: brink-dev
-            VARS_STORE_FILE: brink-dev/vars-store.yml
             SYSTEM_DOMAIN: brink-dev.buildpacks-gcp.ci.cf-app.com
             OPS_FILES: "<%= opsfiles.join(' ') %>"
-            GIT_COMMIT_EMAIL: {{github-email}}
-            GIT_COMMIT_USERNAME: {{github-username}}
+
         - task: clean-up-env-buildpacks
           file: buildpacks-ci/tasks/clean-up-env-buildpacks/task.yml
           params:
@@ -249,7 +243,6 @@ jobs: ##########################################################################
         file: cf-deployment-concourse-tasks/bbl-destroy/task.yml
         params:
           BBL_STATE_DIR: brink-dev
-          BBL_GCP_PROJECT_ID: cf-buildpacks
           BBL_GCP_SERVICE_ACCOUNT_KEY: {{gcp-service-account-key}}
         ensure:
           put: bbl-state
