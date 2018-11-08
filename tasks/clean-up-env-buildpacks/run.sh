@@ -4,6 +4,7 @@ set -o pipefail
 set -o nounset
 
 set +x
+# The following might not work anymore because vars are stored in a credhub
 cf_password=$(grep "cf_admin_password:" "bbl-state/$ENV_NAME/vars-store.yml" | awk '{print $2}')
 target="api.$ENV_NAME.buildpacks-gcp.ci.cf-app.com"
 cf api "$target" --skip-ssl-validation || (sleep 4 && cf api "$target" --skip-ssl-validation)

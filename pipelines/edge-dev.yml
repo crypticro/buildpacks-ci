@@ -50,32 +50,33 @@ resources: #####################################################################
     source:
       uri: https://github.com/cloudfoundry/cf-deployment
       branch: master
-
   - name: buildpacks-ci
     type: git
     source:
       uri: {{buildpacks-ci-git-uri-public}}
       branch: wip-bbl-6
-
   - name: cflinuxfs3-bosh-release
     type: github-release
     source:
       user: cloudfoundry
       repository: cflinuxfs3-release
       access_token: {{buildpacks-github-token}}
+  - name: hwc-buildpack
+    type: git
+    source:
+      uri: https://github.com/cloudfoundry/hwc-buildpack
+      branch: master
 
-  ## bosh.io stemcell ##
+  ## bosh.io stemcells ##
 
   - name: gcp-stemcell
     type: bosh-io-stemcell
     source:
       name: bosh-google-kvm-ubuntu-xenial-go_agent
-
   - name: gcp-windows2012R2-stemcell
     type: bosh-io-stemcell
     source:
       name: bosh-google-kvm-windows2012R2-go_agent
-
   - name: gcp-windows2016-stemcell
     type: bosh-io-stemcell
     source:
@@ -138,7 +139,7 @@ jobs: ##########################################################################
           - get: gcp-windows2016-stemcell
           - get: cf-deployment-concourse-tasks
           - get: cflinuxfs3-bosh-release
-
+          - get: hwc-buildpack
         - aggregate:
           - task: bosh-upload-windows2012R2-stemcell
             file: cf-deployment-concourse-tasks/bosh-upload-stemcells/task.yml
@@ -161,10 +162,6 @@ jobs: ##########################################################################
             params:
               BBL_STATE_DIR: brink-dev
               RELEASE: "*.tgz"
-        - task: turn-on-bosh-dns
-          file: buildpacks-ci/tasks/turn-on-bosh-dns/task.yml
-          params:
-            BBL_STATE_DIR: brink-dev
         - task: clean-up-env-buildpacks
           file: buildpacks-ci/tasks/clean-up-env-buildpacks/task.yml
           params:
@@ -176,12 +173,11 @@ jobs: ##########################################################################
             vars-store: bbl-state
             vars-files: bbl-state # not actually used
             ops-files: buildpacks-ci
-
           params:
             BBL_STATE_DIR: brink-dev
             SYSTEM_DOMAIN: brink-dev.buildpacks-gcp.ci.cf-app.com
             OPS_FILES: "<%= opsfiles.join(' ') %>"
-
+            BOSH_DEPLOY_ARGS: # We might need this to redeploy daily
         - task: clean-up-env-buildpacks
           file: buildpacks-ci/tasks/clean-up-env-buildpacks/task.yml
           params:
