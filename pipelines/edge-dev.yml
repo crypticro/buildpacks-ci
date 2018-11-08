@@ -177,7 +177,7 @@ jobs: ##########################################################################
             BBL_STATE_DIR: brink-dev
             SYSTEM_DOMAIN: brink-dev.buildpacks-gcp.ci.cf-app.com
             OPS_FILES: "<%= opsfiles.join(' ') %>"
-            BOSH_DEPLOY_ARGS: # We might need this to redeploy daily
+#            BOSH_DEPLOY_ARGS: We might need this to redeploy daily
         - task: clean-up-env-buildpacks
           file: buildpacks-ci/tasks/clean-up-env-buildpacks/task.yml
           params:
