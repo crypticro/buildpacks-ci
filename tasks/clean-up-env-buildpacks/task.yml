@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: cfbuildpacks/ci
-    tag: bbl-6
+    tag: bbl-6 # TODO cut this back after merge
 inputs:
   - name: buildpacks-ci
   - name: hwc-buildpack

@@ -3,7 +3,7 @@ require 'yaml'
 require 'open3'
 
 name = `hostname`.chomp
-edge_envs = ['rim', 'brink', 'brink-dev', 'fringe']
+edge_envs = ['rim', 'brink', 'fringe', 'rim-dev', 'brink-dev', 'fringe-dev']
 
 def env_login(env)
   system('cf', 'api', "api.#{env}.buildpacks-gcp.ci.cf-app.com", '--skip-ssl-validation') or raise 'Could not connect'
@@ -21,7 +21,7 @@ def admin_password(env_name)
   else
     puts "Logging into credhub for: #{env_name}"
     bbl_env, = Open3.capture3("bbl --state-dir #{env_home} print-env")
-    cf_pass, err, status = Open3.capture3("eval \"#{bbl_env}\" && credhub get -n /bosh-brink-dev/cf/cf_admin_password -j | jq -r .value")
+    cf_pass, err, status = Open3.capture3("eval \"#{bbl_env}\" && credhub get -n /bosh-#{env_name}/cf/cf_admin_password -j | jq -r .value")
 
     if !err.empty?
       STDERR.puts "ERROR: Could not log in via credhub to: #{env_name}"

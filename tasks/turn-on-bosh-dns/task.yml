@@ -4,17 +4,15 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: relintdockerhubpushbot/cf-deployment-concourse-tasks
-    tag: v5.27.0
+    repository: cfbuildpacks/ci
 
 inputs:
 - name: buildpacks-ci
 - name: bbl-state
+- name: bosh-deployment
 
 run:
   path: buildpacks-ci/tasks/turn-on-bosh-dns/run.sh
 
 params:
   BBL_STATE_DIR:
-
-# We can maybe delete this (https://github.com/cloudfoundry/cf-deployment-concourse-tasks/releases/tag/v7.0)
