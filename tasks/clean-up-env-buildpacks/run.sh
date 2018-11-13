@@ -20,10 +20,17 @@ set -x
 
 # We don't have the hwc-buildpack in this list because cf-deployment installs it as nil-stack and we want to
 # delete it here and replace it later.
-custom_buildpacks=$(cf buildpacks | tail -n +4 | cut -d ' ' -f1 | grep -v 'apt_buildpack\|binary_buildpack\|credhub_buildpack\|dotnet_core_buildpack\|go_buildpack\|nginx_buildpack\|nodejs_buildpack\|php_buildpack\|python_buildpack\|r_buildpack\|ruby_buildpack\|staticfile_buildpack\|java_buildpack' || true)
+custom_buildpacks=$(cf buildpacks | tail -n +4 | awk '{ print $1,$6 }' | grep -v 'apt_buildpack\|binary_buildpack\|credhub_buildpack\|dotnet_core_buildpack\|go_buildpack\|nginx_buildpack\|nodejs_buildpack\|php_buildpack\|python_buildpack\|r_buildpack\|ruby_buildpack\|staticfile_buildpack\|java_buildpack' | grep 'cflinuxfs2\|cflinuxfs3\|windows2012R2\|windows2016' || true)
+
+for bp_and_stack in "$custom_buildpacks"; do
+  bp=$(echo $bp_and_stack | cut -d ' ' -f1)
+  stack=$(echo $bp_and_stack | cut -d ' ' -f2)
+  cf delete-buildpack "$bp" -s "$stack" -f
+done
+
 null_buildpacks=$(cf buildpacks | tail -n +4 | grep -v 'cflinuxfs2\|cflinuxfs3\|windows2012R2\|windows2016' | cut -d ' ' -f1 || true)
 
-for bp in $custom_buildpacks $null_buildpacks; do
+for bp in $null_buildpacks; do
   cf delete-buildpack "$bp" -f
 done
 
