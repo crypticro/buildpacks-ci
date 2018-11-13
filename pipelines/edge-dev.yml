@@ -13,7 +13,8 @@
    ]
 %>
 
-resource_types:
+resource_types: ########################################################################################################
+
   - name: slack-notification
     type: docker-image
     source:
@@ -29,7 +30,7 @@ resource_types:
     source:
       repository: cloudfoundry/bosh-deployment-resource
 
-resources: ###########################################################################################################
+resources: #############################################################################################################
 
   ## Git Repos ##
 
@@ -74,7 +75,6 @@ resources: #####################################################################
     source:
       uri: https://github.com/cloudfoundry/hwc-buildpack
       branch: master
-
 
   ## bosh.io Stemcells ##
 
@@ -126,7 +126,7 @@ resources: #####################################################################
       private_key: {{public-buildpacks-ci-robots-private-key}}
       uri: git@github.com:cloudfoundry/public-buildpacks-ci-robots
 
-jobs: ################################################################################################################
+jobs: ##################################################################################################################
 
 <% environments.each do |env| %>
   - name: bbl-up-<%= env %>
@@ -238,6 +238,7 @@ jobs: ##########################################################################
             bbl-state: bbl-state-<%= env %>
           params:
             ENV_NAME: <%= env %>
+            INSTALL_STACK_ASSOC_HWC_BPS: true
         on_failure:
           put: failure-alert
           params:
@@ -349,7 +350,7 @@ jobs: ##########################################################################
             rebase: true
 <% end %>
 
-groups:
+groups: ################################################################################################################
 - name: all
   jobs:
   <% environments.each do |env| %>

@@ -13,3 +13,4 @@ run:
   path: buildpacks-ci/tasks/clean-up-env-buildpacks/run.sh
 params:
   ENV_NAME:
+  INSTALL_STACK_ASSOC_HWC_BPS: false
