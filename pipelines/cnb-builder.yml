@@ -14,26 +14,13 @@ resources:
       uri: {{buildpacks-ci-git-uri-public}}
       branch: master
 
-  - name: nodejs-cnb
-    type: git
+<% cnb_name.each do |cnb| do %>
+  - name: <%= cnb %>-release
+    type: github-release
     source:
-      uri: git@github.com:cloudfoundry/nodejs-cnb.git
-      private_key: {{cf-buildpacks-eng-github-ssh-key}}
-      branch: master
-
-  - name: npm-cnb
-    type: git
-    source:
-      uri: git@github.com:cloudfoundry/npm-cnb.git
-      private_key: {{cf-buildpacks-eng-github-ssh-key}}
-      branch: master
-
-  - name: yarn-cnb
-    type: git
-    source:
-      uri: git@github.com:cloudfoundry/yarn-cnb.git
-      private_key: {{cf-buildpacks-eng-github-ssh-key}}
-      branch: master
+      owner: cloudfoundry
+      repository: <%= cnb %>
+<% end %>
 
   - name: version
     type: semver

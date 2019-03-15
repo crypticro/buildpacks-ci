@@ -25,8 +25,6 @@ pushd buildpack
     go mod vendor
   fi
 
-  go mod download
-
   # for the PHP buildpack
   if [ -e run_tests.sh ]; then
     TMPDIR=$(mktemp -d)
